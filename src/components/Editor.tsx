@@ -2,7 +2,9 @@ import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
+
 import { RestoreFromStoragePlugin } from "../plugins/RestoreFromStoragePlugin";
+import { AppendTextSnippedPlugin } from "../plugins/AppendTextSnippetPlugin";
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
@@ -31,6 +33,7 @@ export function LexicalEditor(props: LexicalEditorProps) {
         ErrorBoundary={LexicalErrorBoundary}
       />
       <RestoreFromStoragePlugin namespace={props.config.namespace} />
+      <AppendTextSnippedPlugin />
     </LexicalComposer>
   );
 }
