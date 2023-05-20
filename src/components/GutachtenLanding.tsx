@@ -9,7 +9,25 @@ export default function GutachtenLanding() {
   const createGutachtenMut = useMutation({
     mutationFn: async () => {
       const resp = await axios.post("http://localhost:8000/api/gutachten", {
-        ga: {},
+        ga: {
+          root: {
+            children: [
+              {
+                children: [],
+                direction: null,
+                format: "",
+                indent: 0,
+                type: "paragraph",
+                version: 1,
+              },
+            ],
+            direction: null,
+            format: "",
+            indent: 0,
+            type: "root",
+            version: 1,
+          },
+        },
       });
       return resp.data as GutachtenOutput;
     },

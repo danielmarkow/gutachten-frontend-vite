@@ -37,10 +37,10 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
     onSuccess: (data) => {
       if (isFirstRender) {
         setIsFirstRender(false);
-        if (Object.keys(data).length > 0) {
-          const initialEditorState = editor.parseEditorState(data.ga);
-          editor.setEditorState(initialEditorState);
-        }
+        // if (Object.keys(data).length > 0) {
+        const initialEditorState = editor.parseEditorState(data.ga);
+        editor.setEditorState(initialEditorState);
+        // }
       }
     },
   });
