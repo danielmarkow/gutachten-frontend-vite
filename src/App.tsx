@@ -11,10 +11,12 @@ function App() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <Route path="/" component={GutachtenLanding} />
-        <Route path="/gutachten/:ga_id">
-          {(params) => <Editor ga_id={params.ga_id} />}
-        </Route>
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <Route path="/" component={GutachtenLanding} />
+          <Route path="/gutachten/:ga_id">
+            {(params) => <Editor ga_id={params.ga_id} />}
+          </Route>
+        </div>
       </QueryClientProvider>
     </>
   );

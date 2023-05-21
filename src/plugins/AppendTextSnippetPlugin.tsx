@@ -6,14 +6,12 @@ import type { LexicalCommand } from "lexical";
 import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 import { useQuery } from "react-query";
 
-import { TextbausteineOutput } from "../types/textbausteine";
-
 export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
-  const HELLO_WORLD_COMMAND: LexicalCommand<string> = createCommand();
+  const APPEND_TEXT_SNIPPET_COMMAND: LexicalCommand<string> = createCommand();
 
   editor.registerCommand(
-    HELLO_WORLD_COMMAND,
+    APPEND_TEXT_SNIPPET_COMMAND,
     (payload: string) => {
       editor.update(() => {
         const root = $getRoot();
@@ -27,36 +25,36 @@ export function AppendTextSnippedPlugin() {
     COMMAND_PRIORITY_LOW
   );
 
-  const textbausteineQuery = useQuery({
-    queryKey: ["textbausteine"],
+  const themeQuery = useQuery({
+    queryKey: ["theme"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8000/api/textbaustein");
-      return res.data as TextbausteineOutput[];
+      const res = await axios.get("http://localhost:8000/api/theme");
+      return res.data;
     },
   });
 
   return (
     <>
-      {textbausteineQuery.isSuccess &&
-        textbausteineQuery.data.map((tb) => (
+      {themeQuery.isSuccess &&
+        themeQuery.data.map((tb) => (
           <div key={tb.id}>
             <p>{tb.theme}</p>
             <p>{tb.differentiation}</p>
-            <p>{tb.grade}</p>
-            <button
-              onClick={() =>
-                editor.dispatchCommand(HELLO_WORLD_COMMAND, tb.snippet)
-              }
-            >
-              Note {tb.grade}
-            </button>
+            {tb.grades.map((grade) => (
+              <button
+                className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                onClick={() =>
+                  editor.dispatchCommand(
+                    APPEND_TEXT_SNIPPET_COMMAND,
+                    grade.snippet
+                  )
+                }
+              >
+                Note {grade.grade}
+              </button>
+            ))}
           </div>
         ))}
     </>
-    // <button
-    //   onClick={() => editor.dispatchCommand(HELLO_WORLD_COMMAND, "hrello")}
-    // >
-    //   dispatch
-    // </button>
   );
 }
