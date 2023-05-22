@@ -1,10 +1,14 @@
+import { useState } from "react";
+
 import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 import { useLocation } from "wouter";
 import type { GutachtenOutput } from "../types/gutachten";
+import CreateGutachtenModal from "./CreateGutachtenModal";
 
 export default function GutachtenLanding() {
   const [location, setLocation] = useLocation();
+  const [openCreateGA, setOpenCreateGA] = useState(false);
 
   const createGutachtenMut = useMutation({
     mutationFn: async () => {
@@ -53,6 +57,7 @@ export default function GutachtenLanding() {
 
   return (
     <>
+      <CreateGutachtenModal open={openCreateGA} setOpen={setOpenCreateGA} />
       <p>Deine Gutachten</p>
       <ul>
         {getGutachtenQuery.isSuccess &&
@@ -69,7 +74,11 @@ export default function GutachtenLanding() {
             );
           })}
       </ul>
-      <button onClick={() => createGutachtenMut.mutate()}>
+      {/* <button onClick={() => createGutachtenMut.mutate()}> */}
+      <button
+        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+        onClick={() => setOpenCreateGA(true)}
+      >
         Neues Gutachten
       </button>
     </>
