@@ -12,6 +12,7 @@ import type { ThemeOutput } from "../types/textbausteine";
 
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import Loading from "../components/common/Loading";
 
 export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -43,6 +44,8 @@ export function AppendTextSnippedPlugin() {
   const classNames = (...classes: string[]) => {
     return classes.filter(Boolean).join(" ");
   };
+
+  if (themeQuery.isLoading) return <Loading />;
 
   return (
     <>

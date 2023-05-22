@@ -1,14 +1,24 @@
 import { Fragment } from "react";
 
+import axios from "axios";
 import { Dialog, Transition } from "@headlessui/react";
 import { useForm } from "react-hook-form";
+import { useLocation } from "wouter";
+import { useMutation } from "react-query";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { GutachtenOutput } from "../types/gutachten";
+import LoadinButton from "./common/LoadingButton";
+
 const schema = z.object({
   description: z.string(),
 });
+
+type FormValues = {
+  description: string;
+};
 
 export default function CreateGutachtenModal({
   open,
@@ -17,9 +27,39 @@ export default function CreateGutachtenModal({
   open: boolean;
   setOpen: (arg: boolean) => void;
 }) {
-  type FormValues = {
-    description: string;
-  };
+  const [location, setLocation] = useLocation();
+
+  const createGutachtenMut = useMutation({
+    mutationFn: async (data: FormValues) => {
+      const resp = await axios.post("http://localhost:8000/api/gutachten", {
+        ga: {
+          root: {
+            children: [
+              {
+                children: [],
+                direction: null,
+                format: "",
+                indent: 0,
+                type: "paragraph",
+                version: 1,
+              },
+            ],
+            direction: null,
+            format: "",
+            indent: 0,
+            type: "root",
+            version: 1,
+          },
+        },
+        ...data,
+      });
+      return resp.data as GutachtenOutput;
+    },
+    onSuccess: (data) => {
+      setOpen(false);
+      setLocation(`/gutachten/${data.id}`);
+    },
+  });
 
   const {
     register,
@@ -31,7 +71,8 @@ export default function CreateGutachtenModal({
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
+    // console.log(data);
+    createGutachtenMut.mutate(data);
   };
 
   return (
@@ -92,9 +133,12 @@ export default function CreateGutachtenModal({
                     <button
                       type="submit"
                       className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
-                      onClick={() => setOpen(false)}
                     >
-                      Gutachten erstellen
+                      {createGutachtenMut.isLoading ? (
+                        <LoadinButton />
+                      ) : (
+                        "Gutachten erstellen"
+                      )}
                     </button>
                     <button
                       type="button"
