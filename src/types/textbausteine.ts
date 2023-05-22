@@ -11,6 +11,7 @@ export type GradeOutput = GradeInput & {
 export type ThemeInput = {
   theme: string;
   differentiation: string;
+  color?: string;
 };
 
 export type ThemeOutput = ThemeInput & {

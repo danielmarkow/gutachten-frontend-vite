@@ -63,7 +63,6 @@ export default function CreateGutachtenModal({
 
   const {
     register,
-    // reset: fieldFormReset,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
@@ -71,7 +70,6 @@ export default function CreateGutachtenModal({
   });
 
   const onSubmit = (data: FormValues) => {
-    // console.log(data);
     createGutachtenMut.mutate(data);
   };
 
@@ -127,6 +125,14 @@ export default function CreateGutachtenModal({
                         placeholder="kurze Beschreibung"
                         {...register("description")}
                       />
+                      {errors && (
+                        <p
+                          className="mt-2 text-sm text-red-600"
+                          id="description-error"
+                        >
+                          {errors.description?.message as string}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
@@ -145,7 +151,7 @@ export default function CreateGutachtenModal({
                       className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       onClick={() => setOpen(false)}
                     >
-                      Cancel
+                      Abbrechen
                     </button>
                   </div>
                 </form>

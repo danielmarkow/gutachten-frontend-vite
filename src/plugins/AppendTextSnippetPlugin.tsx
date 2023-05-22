@@ -61,10 +61,12 @@ export function AppendTextSnippedPlugin() {
                 className="col-span-1 flex rounded-md shadow-sm"
               >
                 <div
-                  className={classNames(
-                    "bg-pink-600",
-                    "flex w-3 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white"
-                  )}
+                  className="flex w-3 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white"
+                  style={{
+                    backgroundColor: `${
+                      theme.color !== undefined ? theme.color : "red"
+                    }`,
+                  }}
                 ></div>
                 <div className="flex flex-1 items-center justify-between rounded-r-md border-b border-r border-t border-gray-200 bg-white w-52">
                   <div className="flex-1 px-4 py-2 text-sm">
