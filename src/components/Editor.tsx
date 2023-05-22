@@ -3,8 +3,9 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 
-import { RestoreFromStoragePlugin } from "../plugins/RestoreFromStoragePlugin";
 import { AppendTextSnippedPlugin } from "../plugins/AppendTextSnippetPlugin";
+import { FloatingMenuPlugin } from "../plugins/FloatingMenuPlugin";
+import { RestoreFromStoragePlugin } from "../plugins/RestoreFromStoragePlugin";
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
@@ -34,6 +35,7 @@ export function LexicalEditor(props: LexicalEditorProps) {
       />
       <RestoreFromStoragePlugin namespace={props.config.namespace} />
       <AppendTextSnippedPlugin />
+      <FloatingMenuPlugin />
     </LexicalComposer>
   );
 }
