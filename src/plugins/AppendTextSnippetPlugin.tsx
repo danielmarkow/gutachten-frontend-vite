@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { createCommand, COMMAND_PRIORITY_LOW } from "lexical";
@@ -11,12 +11,19 @@ import { useQuery } from "react-query";
 import type { ThemeOutput } from "../types/textbausteine";
 
 import { Menu, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import {
+  EllipsisVerticalIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/20/solid";
+
 import Loading from "../components/common/Loading";
+import EditSnippetModal from "../components/EditSnippetModal";
 
 export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
   const APPEND_TEXT_SNIPPET_COMMAND: LexicalCommand<string> = createCommand();
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [themeToEdit, setThemeToEdit] = useState("");
 
   editor.registerCommand(
     APPEND_TEXT_SNIPPET_COMMAND,
@@ -49,6 +56,11 @@ export function AppendTextSnippedPlugin() {
 
   return (
     <>
+      <EditSnippetModal
+        open={openEditModal}
+        setOpen={setOpenEditModal}
+        themeId={themeToEdit}
+      />
       <ul
         role="list"
         className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
@@ -68,8 +80,17 @@ export function AppendTextSnippedPlugin() {
                     }`,
                   }}
                 ></div>
-                <div className="flex flex-1 items-center justify-between rounded-r-md border-b border-r border-t border-gray-200 bg-white w-52">
+                <div className="flex flex-1 justify-between rounded-r-md border-b border-r border-t border-gray-200 bg-white w-52">
                   <div className="flex-1 px-4 py-2 text-sm">
+                    <div className="w-full">
+                      <PencilSquareIcon
+                        onClick={() => {
+                          setThemeToEdit(theme.id);
+                          setOpenEditModal(true);
+                        }}
+                        className="h-5 w-5 cursor-pointer"
+                      />
+                    </div>
                     <p className="font-medium text-gray-900 hover:text-gray-600">
                       {theme.theme}
                     </p>
@@ -77,7 +98,7 @@ export function AppendTextSnippedPlugin() {
                   </div>
                   <Menu as="div" className="relative inline-block text-left">
                     <div>
-                      <Menu.Button className="nline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                      <Menu.Button className="nline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white hover:text-gray-500">
                         <EllipsisVerticalIcon
                           className="h-5 w-5"
                           aria-hidden="true"
