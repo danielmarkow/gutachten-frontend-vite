@@ -11,6 +11,7 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
 import { LinkNode } from "@lexical/link";
 import { CodeNode } from "@lexical/code";
+import DraggableBlockPlugin from "../plugins/DragableBlockPlugin";
 
 const EDITOR_NODES = [
   CodeNode,
@@ -36,6 +37,7 @@ export function LexicalEditor(props: LexicalEditorProps) {
       <RestoreFromStoragePlugin namespace={props.config.namespace} />
       <AppendTextSnippedPlugin />
       <FloatingMenuPlugin />
+      <DraggableBlockPlugin />
     </LexicalComposer>
   );
 }
