@@ -23,7 +23,12 @@ export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
   const APPEND_TEXT_SNIPPET_COMMAND: LexicalCommand<string> = createCommand();
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [themeToEdit, setThemeToEdit] = useState("");
+  const [themeToEdit, setThemeToEdit] = useState<ThemeOutput>({
+    id: "",
+    theme: "",
+    differentiation: "",
+    grades: [{ id: "", grade: 0, snippet: "", theme_id: "" }],
+  });
 
   editor.registerCommand(
     APPEND_TEXT_SNIPPET_COMMAND,
@@ -53,13 +58,14 @@ export function AppendTextSnippedPlugin() {
   };
 
   if (themeQuery.isLoading) return <Loading />;
+  if (themeQuery.isError) return <p>Es ist ein Fehler aufgetreten</p>;
 
   return (
     <>
       <EditSnippetModal
         open={openEditModal}
         setOpen={setOpenEditModal}
-        themeId={themeToEdit}
+        theme={themeToEdit}
       />
       <ul
         role="list"
@@ -85,7 +91,7 @@ export function AppendTextSnippedPlugin() {
                     <div className="w-full">
                       <PencilSquareIcon
                         onClick={() => {
-                          setThemeToEdit(theme.id);
+                          setThemeToEdit(theme);
                           setOpenEditModal(true);
                         }}
                         className="h-5 w-5 cursor-pointer"
@@ -117,7 +123,7 @@ export function AppendTextSnippedPlugin() {
                       <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="py-1">
                           {theme.grades.map((grade) => (
-                            <Menu.Item>
+                            <Menu.Item key={grade.id}>
                               {({ active }) => (
                                 <a
                                   onClick={() =>
@@ -138,6 +144,26 @@ export function AppendTextSnippedPlugin() {
                               )}
                             </Menu.Item>
                           ))}
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                onClick={() =>
+                                  console.log("open edit grades modal")
+                                }
+                                className={classNames(
+                                  active
+                                    ? "bg-gray-100 text-gray-900"
+                                    : "text-gray-700",
+                                  "block px-4 py-2 text-sm font-semibold"
+                                )}
+                              >
+                                <div className="flex align-middle gap-1">
+                                  <PencilSquareIcon className="h-5 w-5" /> Noten
+                                  bearbeiten
+                                </div>
+                              </a>
+                            )}
+                          </Menu.Item>
                         </div>
                       </Menu.Items>
                     </Transition>
