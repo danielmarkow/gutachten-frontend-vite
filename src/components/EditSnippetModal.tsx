@@ -2,7 +2,7 @@ import { Fragment, useEffect } from "react";
 
 import axios from "axios";
 import { Dialog, Transition, Listbox } from "@headlessui/react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 // import { useLocation } from "wouter";
 import { useMutation } from "react-query";
 import {
@@ -20,12 +20,24 @@ import { Square2StackIcon } from "@heroicons/react/20/solid";
 const schema = z.object({
   oberpunkt: z.string(),
   unterpunkt: z.string(),
+  farbe: z.string(),
 });
 
 type FormValues = {
   oberpunkt: string;
   unterpunkt: string;
+  farbe: string;
 };
+
+const COLOR_LIST = [
+  { name: "Slate", value: "#94a3b8", twind: "fill-slate-400" },
+  { name: "Rot", value: "#f87171", twind: "fill-red-400" },
+  { name: "Stein", value: "#a8a29e", twind: "fill-stone-400" },
+  { name: "Orange", value: "#fb923c", twind: "fill-orange-400" },
+  { name: "Amber", value: "#fbbf24", twind: "fill-amber-400" },
+  { name: "Gelb", value: "#facc15", twind: "fill-yellow-400" },
+  { name: "Himmelblau", value: "#0ea5e9", twind: "fill-sky-400" },
+];
 
 export default function EditSnippetModal({
   open,
@@ -41,9 +53,18 @@ export default function EditSnippetModal({
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
+
+  useEffect(() => {
+    // set values in the form on initial render
+    reset({
+      oberpunkt: theme.theme,
+      unterpunkt: theme.differentiation,
+    });
+  }, [open]);
 
   const updateThemeMut = useMutation({
     mutationFn: async ({
@@ -63,14 +84,6 @@ export default function EditSnippetModal({
       console.error("Beim Speichern ist ein Fehler aufgetreten");
     },
   });
-
-  useEffect(() => {
-    // set values in the form on initial render
-    reset({
-      oberpunkt: theme.theme,
-      unterpunkt: theme.differentiation,
-    });
-  }, [open]);
 
   function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(" ");
@@ -119,6 +132,98 @@ export default function EditSnippetModal({
                 <form onSubmit={handleSubmit(onSubmit)}>
                   {/* {JSON.stringify(theme)} */}
                   <div className="px-2">
+                    <div className="mb-1">
+                      <Controller
+                        control={control}
+                        defaultValue=""
+                        name="farbe"
+                        render={({ field }) => (
+                          <Listbox
+                            onChange={field.onChange}
+                            value={field.value}
+                          >
+                            {({ open }) => (
+                              <>
+                                <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">
+                                  Farbe
+                                </Listbox.Label>
+                                <div className="relative mt-2">
+                                  <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <span className="block truncate">TODO</span>
+                                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                      <ChevronUpDownIcon
+                                        className="h-5 w-5 text-gray-400"
+                                        aria-hidden="true"
+                                      />
+                                    </span>
+                                  </Listbox.Button>
+                                  <Transition
+                                    show={open}
+                                    as={Fragment}
+                                    leave="transition ease-in duration-100"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                  >
+                                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                      {COLOR_LIST.map((color, i) => (
+                                        <Listbox.Option
+                                          key={i}
+                                          className={({ active }) =>
+                                            classNames(
+                                              active
+                                                ? "bg-indigo-600 text-white"
+                                                : "text-gray-900",
+                                              "relative cursor-default select-none py-2 pl-3 pr-9"
+                                            )
+                                          }
+                                          value={color.value}
+                                        >
+                                          {({ selected, active }) => (
+                                            <>
+                                              <span
+                                                className={classNames(
+                                                  selected
+                                                    ? "font-semibold"
+                                                    : "font-normal",
+                                                  "block truncate"
+                                                )}
+                                              >
+                                                <div className="flex align-middle gap-1">
+                                                  <Square2StackIcon
+                                                    className={`h-5 w-5 ${color.twind}`}
+                                                  />
+                                                  {color.name}
+                                                </div>
+                                              </span>
+
+                                              {selected ? (
+                                                <span
+                                                  className={classNames(
+                                                    active
+                                                      ? "text-white"
+                                                      : "text-indigo-600",
+                                                    "absolute inset-y-0 right-0 flex items-center pr-4"
+                                                  )}
+                                                >
+                                                  <CheckIcon
+                                                    className="h-5 w-5"
+                                                    aria-hidden="true"
+                                                  />
+                                                </span>
+                                              ) : null}
+                                            </>
+                                          )}
+                                        </Listbox.Option>
+                                      ))}
+                                    </Listbox.Options>
+                                  </Transition>
+                                </div>
+                              </>
+                            )}
+                          </Listbox>
+                        )}
+                      />
+                    </div>
                     <div>
                       <label
                         htmlFor="oberpunkt"
@@ -165,85 +270,6 @@ export default function EditSnippetModal({
                           </p>
                         )}
                       </div>
-                    </div>
-                    <div>
-                      <Listbox>
-                        {({ open }) => (
-                          <>
-                            <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">
-                              Farbe
-                            </Listbox.Label>
-                            <div className="relative mt-2">
-                              <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                <span className="block truncate">
-                                  Farbe TODO
-                                </span>
-                                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                  <ChevronUpDownIcon
-                                    className="h-5 w-5 text-gray-400"
-                                    aria-hidden="true"
-                                  />
-                                </span>
-                              </Listbox.Button>
-                              <Transition
-                                show={open}
-                                as={Fragment}
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100"
-                                leaveTo="opacity-0"
-                              >
-                                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                  <Listbox.Option
-                                    className={({ active }) =>
-                                      classNames(
-                                        active
-                                          ? "bg-indigo-600 text-white"
-                                          : "text-gray-900",
-                                        "relative cursor-default select-none py-2 pl-3 pr-9"
-                                      )
-                                    }
-                                    value="#94a3b8"
-                                  >
-                                    {({ selected, active }) => (
-                                      <>
-                                        <span
-                                          className={classNames(
-                                            selected
-                                              ? "font-semibold"
-                                              : "font-normal",
-                                            "block truncate"
-                                          )}
-                                        >
-                                          <div className="flex align-middle gap-1">
-                                            <Square2StackIcon className="h-5 w-5 fill-slate-400" />
-                                            Slate 400
-                                          </div>
-                                        </span>
-
-                                        {selected ? (
-                                          <span
-                                            className={classNames(
-                                              active
-                                                ? "text-white"
-                                                : "text-indigo-600",
-                                              "absolute inset-y-0 right-0 flex items-center pr-4"
-                                            )}
-                                          >
-                                            <CheckIcon
-                                              className="h-5 w-5"
-                                              aria-hidden="true"
-                                            />
-                                          </span>
-                                        ) : null}
-                                      </>
-                                    )}
-                                  </Listbox.Option>
-                                </Listbox.Options>
-                              </Transition>
-                            </div>
-                          </>
-                        )}
-                      </Listbox>
                     </div>
                   </div>
                   <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
