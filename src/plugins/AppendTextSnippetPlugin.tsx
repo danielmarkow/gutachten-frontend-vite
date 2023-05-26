@@ -8,7 +8,7 @@ import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 
-import type { ThemeOutput } from "../types/textbausteine";
+import type { ThemeInput, ThemeOutput } from "../types/textbausteine";
 
 import { Menu, Transition } from "@headlessui/react";
 import {
@@ -58,6 +58,22 @@ export function AppendTextSnippedPlugin() {
     },
   });
 
+  const createGradeMut = useMutation({
+    mutationFn: async (themeId: string) => {
+      const payload = [1, 2, 3, 4, 5, 6].map((g) => {
+        return {
+          grade: g,
+          snippet: "",
+          theme_id: themeId,
+        };
+      });
+      await axios.post("http://localhost:8000/api/grade", payload);
+    },
+    onSuccess: () => {
+      setOpenEditModal(true);
+    },
+  });
+
   const createThemeMut = useMutation({
     mutationFn: async () => {
       const res = await axios.post("http://localhost:8000/api/theme/", {
@@ -65,14 +81,14 @@ export function AppendTextSnippedPlugin() {
         differentiation: "",
         color: "#94a3b8",
       });
-      return res.data;
+      return res.data as ThemeOutput;
     },
     onError: () => {
       console.error("Error beim Erzeugen des Textbausteins");
     },
     onSuccess: (data) => {
       setThemeToEdit(data);
-      setOpenEditModal(true);
+      createGradeMut.mutate(data.id);
     },
   });
 
@@ -155,28 +171,31 @@ export function AppendTextSnippedPlugin() {
                     >
                       <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div className="py-1">
-                          {theme.grades.map((grade) => (
-                            <Menu.Item key={grade.id}>
-                              {({ active }) => (
-                                <a
-                                  onClick={() =>
-                                    editor.dispatchCommand(
-                                      APPEND_TEXT_SNIPPET_COMMAND,
-                                      grade.snippet
-                                    )
-                                  }
-                                  className={classNames(
-                                    active
-                                      ? "bg-gray-100 text-gray-900"
-                                      : "text-gray-700",
-                                    "block px-4 py-2 text-sm"
+                          {theme.grades.map(
+                            (grade) =>
+                              grade.snippet !== "" && (
+                                <Menu.Item key={grade.id}>
+                                  {({ active }) => (
+                                    <a
+                                      onClick={() =>
+                                        editor.dispatchCommand(
+                                          APPEND_TEXT_SNIPPET_COMMAND,
+                                          grade.snippet
+                                        )
+                                      }
+                                      className={classNames(
+                                        active
+                                          ? "bg-gray-100 text-gray-900"
+                                          : "text-gray-700",
+                                        "block px-4 py-2 text-sm"
+                                      )}
+                                    >
+                                      Note {grade.grade}
+                                    </a>
                                   )}
-                                >
-                                  Note {grade.grade}
-                                </a>
-                              )}
-                            </Menu.Item>
-                          ))}
+                                </Menu.Item>
+                              )
+                          )}
                           <Menu.Item>
                             {({ active }) => (
                               <a
