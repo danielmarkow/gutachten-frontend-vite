@@ -3,8 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import { Dialog, Transition, Listbox } from "@headlessui/react";
 import { useForm, Controller } from "react-hook-form";
-// import { useLocation } from "wouter";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import {
   XMarkIcon,
   ChevronUpDownIcon,
@@ -13,7 +12,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import LoadinButton from "./common/LoadingButton";
+import LoadingButton from "./common/LoadingButton";
 import type { ThemeInput, ThemeOutput } from "../types/textbausteine";
 import { Square2StackIcon } from "@heroicons/react/20/solid";
 
@@ -83,6 +82,8 @@ export default function EditSnippetModal({
     setSelectedColor(currentColor);
   }, [open]);
 
+  const client = useQueryClient();
+
   const updateThemeMut = useMutation({
     mutationFn: async ({
       themeId,
@@ -100,14 +101,25 @@ export default function EditSnippetModal({
     onError: () => {
       console.error("Beim Speichern ist ein Fehler aufgetreten");
     },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["theme"] });
+      setOpen(false);
+    },
   });
 
-  function classNames(...classes: string[]) {
+  const classNames = (...classes: string[]) => {
     return classes.filter(Boolean).join(" ");
-  }
+  };
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
+    updateThemeMut.mutate({
+      themeId: theme.id,
+      payload: {
+        theme: data.oberpunkt,
+        differentiation: data.unterpunkt,
+        color: data.farbe.value,
+      },
+    });
   };
 
   return (
@@ -147,7 +159,6 @@ export default function EditSnippetModal({
                   </button>
                 </div>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  {/* {JSON.stringify(theme)} */}
                   <div className="px-2">
                     <div className="mb-1">
                       <Controller
@@ -303,12 +314,11 @@ export default function EditSnippetModal({
                       type="submit"
                       className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
                     >
-                      {/* {createGutachtenMut.isLoading ? (
-                        <LoadinButton />
+                      {updateThemeMut.isLoading ? (
+                        <LoadingButton />
                       ) : (
-                        "Gutachten erstellen"
-                      )} */}
-                      Speichern
+                        "Speichern"
+                      )}
                     </button>
                     <button
                       type="button"

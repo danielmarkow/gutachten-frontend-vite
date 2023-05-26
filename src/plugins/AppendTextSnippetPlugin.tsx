@@ -6,7 +6,7 @@ import type { LexicalCommand } from "lexical";
 import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 import type { ThemeOutput } from "../types/textbausteine";
 
@@ -14,6 +14,7 @@ import { Menu, Transition } from "@headlessui/react";
 import {
   EllipsisVerticalIcon,
   PencilSquareIcon,
+  PlusCircleIcon,
 } from "@heroicons/react/20/solid";
 
 import Loading from "../components/common/Loading";
@@ -53,6 +54,24 @@ export function AppendTextSnippedPlugin() {
     },
   });
 
+  const createThemeMut = useMutation({
+    mutationFn: async () => {
+      const res = await axios.post("http://localhost:8000/api/theme/", {
+        theme: "",
+        differentiation: "",
+        color: "#94a3b8",
+      });
+      return res.data;
+    },
+    onError: () => {
+      console.error("Error beim Erzeugen des Textbausteins");
+    },
+    onSuccess: (data) => {
+      setThemeToEdit(data);
+      setOpenEditModal(true);
+    },
+  });
+
   const classNames = (...classes: string[]) => {
     return classes.filter(Boolean).join(" ");
   };
@@ -82,7 +101,7 @@ export function AppendTextSnippedPlugin() {
                   className="flex w-3 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white"
                   style={{
                     backgroundColor: `${
-                      theme.color !== undefined ? theme.color : "red"
+                      theme.color !== undefined ? theme.color : "#f87171"
                     }`,
                   }}
                 ></div>
@@ -97,9 +116,7 @@ export function AppendTextSnippedPlugin() {
                         className="h-5 w-5 cursor-pointer"
                       />
                     </div>
-                    <p className="font-medium text-gray-900 hover:text-gray-600">
-                      {theme.theme}
-                    </p>
+                    <p className="font-medium text-gray-900">{theme.theme}</p>
                     <p className="text-gray-500">{theme.differentiation}</p>
                   </div>
                   <Menu as="div" className="relative inline-block text-left">
@@ -172,6 +189,18 @@ export function AppendTextSnippedPlugin() {
               </li>
             </>
           ))}
+        <li>
+          <div className="flex justify-center h-full">
+            <div className="flex flex-1 justify-center items-center bg-gray-100 rounded-md border border-gray-200 w-52">
+              <PlusCircleIcon
+                className="h-10 w-10 cursor-pointer"
+                onClick={() => {
+                  createThemeMut.mutate();
+                }}
+              />
+            </div>
+          </div>
+        </li>
       </ul>
     </>
   );

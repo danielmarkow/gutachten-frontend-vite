@@ -1,4 +1,4 @@
-export default function LoadinButton() {
+export default function LoadingButton() {
   return (
     <>
       <div role="status">
