@@ -15,15 +15,19 @@ import {
   EllipsisVerticalIcon,
   PencilSquareIcon,
   PlusCircleIcon,
+  TrashIcon,
 } from "@heroicons/react/20/solid";
 
 import Loading from "../components/common/Loading";
 import EditSnippetModal from "../components/EditSnippetModal";
+import DeleteThemeModal from "../components/DeleteThemeModal";
 
 export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
   const APPEND_TEXT_SNIPPET_COMMAND: LexicalCommand<string> = createCommand();
+
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [themeToEdit, setThemeToEdit] = useState<ThemeOutput>({
     id: "",
     theme: "",
@@ -86,6 +90,11 @@ export function AppendTextSnippedPlugin() {
         setOpen={setOpenEditModal}
         theme={themeToEdit}
       />
+      <DeleteThemeModal
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
+        theme={themeToEdit}
+      />
       <ul
         role="list"
         className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
@@ -107,11 +116,18 @@ export function AppendTextSnippedPlugin() {
                 ></div>
                 <div className="flex flex-1 justify-between rounded-r-md border-b border-r border-t border-gray-200 bg-white w-52">
                   <div className="flex-1 px-4 py-2 text-sm">
-                    <div className="w-full">
+                    <div className="flex w-full align-middle gap-2">
                       <PencilSquareIcon
                         onClick={() => {
                           setThemeToEdit(theme);
                           setOpenEditModal(true);
+                        }}
+                        className="h-5 w-5 cursor-pointer"
+                      />
+                      <TrashIcon
+                        onClick={() => {
+                          setThemeToEdit(theme);
+                          setOpenDeleteModal(true);
                         }}
                         className="h-5 w-5 cursor-pointer"
                       />
