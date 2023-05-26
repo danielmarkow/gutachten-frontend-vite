@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import axios from "axios";
 import { Dialog, Transition, Listbox } from "@headlessui/react";
@@ -20,13 +20,23 @@ import { Square2StackIcon } from "@heroicons/react/20/solid";
 const schema = z.object({
   oberpunkt: z.string(),
   unterpunkt: z.string(),
-  farbe: z.string(),
+  farbe: z.object({
+    name: z.string(),
+    value: z.string(),
+    twind: z.string(),
+  }),
 });
 
 type FormValues = {
   oberpunkt: string;
   unterpunkt: string;
-  farbe: string;
+  farbe: typeof COLOR_LIST;
+};
+
+type Color = {
+  name: string;
+  value: string;
+  twind: string;
 };
 
 const COLOR_LIST = [
@@ -37,7 +47,7 @@ const COLOR_LIST = [
   { name: "Amber", value: "#fbbf24", twind: "fill-amber-400" },
   { name: "Gelb", value: "#facc15", twind: "fill-yellow-400" },
   { name: "Himmelblau", value: "#0ea5e9", twind: "fill-sky-400" },
-];
+] as Color[];
 
 export default function EditSnippetModal({
   open,
@@ -48,6 +58,8 @@ export default function EditSnippetModal({
   setOpen: (arg: boolean) => void;
   theme: ThemeOutput;
 }) {
+  const [selectedColor, setSelectedColor] = useState<Color>();
+
   const {
     register,
     handleSubmit,
@@ -59,11 +71,16 @@ export default function EditSnippetModal({
   });
 
   useEffect(() => {
+    const currentColor = COLOR_LIST.filter(
+      (color) => color.value === theme.color
+    )[0];
     // set values in the form on initial render
     reset({
       oberpunkt: theme.theme,
       unterpunkt: theme.differentiation,
+      farbe: currentColor,
     });
+    setSelectedColor(currentColor);
   }, [open]);
 
   const updateThemeMut = useMutation({
@@ -135,12 +152,14 @@ export default function EditSnippetModal({
                     <div className="mb-1">
                       <Controller
                         control={control}
-                        defaultValue=""
                         name="farbe"
                         render={({ field }) => (
                           <Listbox
-                            onChange={field.onChange}
-                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setSelectedColor(e);
+                            }}
+                            value={selectedColor}
                           >
                             {({ open }) => (
                               <>
@@ -149,7 +168,9 @@ export default function EditSnippetModal({
                                 </Listbox.Label>
                                 <div className="relative mt-2">
                                   <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                    <span className="block truncate">TODO</span>
+                                    <span className="block truncate">
+                                      {selectedColor.name}
+                                    </span>
                                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ChevronUpDownIcon
                                         className="h-5 w-5 text-gray-400"
@@ -176,7 +197,7 @@ export default function EditSnippetModal({
                                               "relative cursor-default select-none py-2 pl-3 pr-9"
                                             )
                                           }
-                                          value={color.value}
+                                          value={color}
                                         >
                                           {({ selected, active }) => (
                                             <>
@@ -192,7 +213,16 @@ export default function EditSnippetModal({
                                                   <Square2StackIcon
                                                     className={`h-5 w-5 ${color.twind}`}
                                                   />
-                                                  {color.name}
+                                                  <p
+                                                    className={classNames(
+                                                      selected
+                                                        ? "font-semibold"
+                                                        : "font-normal",
+                                                      "block truncate"
+                                                    )}
+                                                  >
+                                                    {color.name}
+                                                  </p>
                                                 </div>
                                               </span>
 
