@@ -21,6 +21,7 @@ import {
 import Loading from "../components/common/Loading";
 import EditSnippetModal from "../components/EditSnippetModal";
 import DeleteThemeModal from "../components/DeleteThemeModal";
+import EditGradesModal from "../components/EditGradesModal";
 
 export function AppendTextSnippedPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -28,6 +29,8 @@ export function AppendTextSnippedPlugin() {
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openGradesModal, setOpenGradesModal] = useState(false);
+  // TODO work with undefined!
   const [themeToEdit, setThemeToEdit] = useState<ThemeOutput>({
     id: "",
     theme: "",
@@ -109,6 +112,11 @@ export function AppendTextSnippedPlugin() {
       <DeleteThemeModal
         open={openDeleteModal}
         setOpen={setOpenDeleteModal}
+        theme={themeToEdit}
+      />
+      <EditGradesModal
+        open={openGradesModal}
+        setOpen={setOpenGradesModal}
         theme={themeToEdit}
       />
       <ul
@@ -199,9 +207,10 @@ export function AppendTextSnippedPlugin() {
                           <Menu.Item>
                             {({ active }) => (
                               <a
-                                onClick={() =>
-                                  console.log("open edit grades modal")
-                                }
+                                onClick={() => {
+                                  setThemeToEdit(theme);
+                                  setOpenGradesModal(true);
+                                }}
                                 className={classNames(
                                   active
                                     ? "bg-gray-100 text-gray-900"
