@@ -7,17 +7,19 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { ThemeOutput } from "../types/textbausteine";
-import { useQuery } from "react-query";
+import type { GradeOutput, ThemeOutput } from "../types/textbausteine";
+import { useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 
+import LoadingButton from "./common/LoadingButton";
+
 const formValidator = z.object({
-  grade1: z.string().optional(),
-  grade2: z.string().optional(),
-  grade3: z.string().optional(),
-  grade4: z.string().optional(),
-  grade5: z.string().optional(),
-  grade6: z.string().optional(),
+  grade1: z.string(),
+  grade2: z.string(),
+  grade3: z.string(),
+  grade4: z.string(),
+  grade5: z.string(),
+  grade6: z.string(),
 });
 
 type FormValues = z.infer<typeof formValidator>;
@@ -53,8 +55,42 @@ export default function EditGradesModal({
     }
   }, [open]);
 
+  const client = useQueryClient();
+
+  const updateGradesMut = useMutation({
+    mutationFn: async (payload: GradeOutput[]) => {
+      await axios.put("http://localhost:8000/api/grade", payload);
+    },
+    onError: () => {
+      console.error("Fehler beim Speichern der Noten");
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["theme"] });
+      setOpen(false);
+    },
+  });
+
   const onSubmit = (data: FormValues) => {
-    console.log(data);
+    const newGrades = [...theme.grades];
+
+    const payload = newGrades.map((grade) => {
+      switch (grade.grade) {
+        case 1:
+          return { ...grade, snippet: data.grade1 };
+        case 2:
+          return { ...grade, snippet: data.grade2 };
+        case 3:
+          return { ...grade, snippet: data.grade3 };
+        case 4:
+          return { ...grade, snippet: data.grade4 };
+        case 5:
+          return { ...grade, snippet: data.grade5 };
+        case 6:
+          return { ...grade, snippet: data.grade6 };
+      }
+    }) as GradeOutput[];
+
+    updateGradesMut.mutate(payload);
   };
 
   return (
@@ -257,12 +293,11 @@ export default function EditGradesModal({
                         type="submit"
                         className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
                       >
-                        {/* {updateThemeMut.isLoading ? (
-                        <LoadingButton />
-                      ) : (
-                        "Speichern"
-                      )} */}
-                        Speichern
+                        {updateGradesMut.isLoading ? (
+                          <LoadingButton />
+                        ) : (
+                          "Speichern"
+                        )}
                       </button>
                       <button
                         type="button"
