@@ -13,6 +13,8 @@ import { LinkNode } from "@lexical/link";
 import { CodeNode } from "@lexical/code";
 import DraggableBlockPlugin from "../plugins/DragableBlockPlugin";
 
+import { useLocation } from "wouter";
+
 const EDITOR_NODES = [
   CodeNode,
   HeadingNode,
@@ -51,8 +53,18 @@ const Placeholder = () => {
 };
 
 export function Editor({ ga_id }: { ga_id: string }) {
+  const [location, setLocation] = useLocation();
+
   return (
     <>
+      <div className="h-1" />
+      <button
+        onClick={() => setLocation("/gutachten")}
+        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      >
+        Zurück
+      </button>
+      <div className="h-1" />
       <div
         id="editor-wrapper"
         className={

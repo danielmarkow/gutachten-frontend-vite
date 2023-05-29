@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import axios from "axios";
 import { useQuery } from "react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import type { GutachtenOutput } from "../types/gutachten";
 import CreateGutachtenModal from "./CreateGutachtenModal";
 
@@ -27,23 +27,29 @@ export default function GutachtenLanding() {
 
   return (
     <>
+      <div className="h-2" />
       <CreateGutachtenModal open={openCreateGA} setOpen={setOpenCreateGA} />
-      <p>Deine Gutachten</p>
-      <ul>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {getGutachtenQuery.isSuccess &&
-          getGutachtenQuery.data &&
-          getGutachtenQuery.data.map((ga) => {
-            return (
-              <li
-                key={ga.id}
-                onClick={() => setLocation(`/gutachten/${ga.id}`)}
-                className="cursor-pointer underline"
-              >
-                {ga.description ? ga.description : "keine Beschreibung"}
-              </li>
-            );
-          })}
-      </ul>
+          getGutachtenQuery.data.map((gutachten) => (
+            <div
+              key={gutachten.id}
+              className="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
+            >
+              <div className="min-w-0 flex-1">
+                <Link href={`/gutachten/${gutachten.id}`}>
+                  <a className="focus:outline-none">
+                    <span className="absolute inset-0" aria-hidden="true" />
+                    <p className="text-sm font-medium text-gray-900">
+                      {gutachten.description}
+                    </p>
+                  </a>
+                </Link>
+              </div>
+            </div>
+          ))}
+      </div>
+      <div className="h-2" />
       <button
         className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
         onClick={() => setOpenCreateGA(true)}
