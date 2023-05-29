@@ -6,14 +6,23 @@ import { useLocation, Link } from "wouter";
 import type { GutachtenOutput } from "../types/gutachten";
 import CreateGutachtenModal from "./CreateGutachtenModal";
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 export default function GutachtenLanding() {
+  const { getAccessTokenSilently } = useAuth0();
+
   const [location, setLocation] = useLocation();
   const [openCreateGA, setOpenCreateGA] = useState(false);
 
   const getGutachtenQuery = useQuery({
     queryKey: ["gutachten"], // query key is necessary for this to refetch
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8000/api/gutachten/");
+      const accessToken = await getAccessTokenSilently();
+      const res = await axios.get("http://localhost:8000/api/gutachten", {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
       return res.data as GutachtenOutput[];
     },
     onError: () => {
