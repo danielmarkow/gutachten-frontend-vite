@@ -13,6 +13,7 @@ export type ThemeInput = {
   theme: string;
   differentiation: string;
   color?: string;
+  user_id: string;
 };
 
 export type ThemeOutput = ThemeInput & {

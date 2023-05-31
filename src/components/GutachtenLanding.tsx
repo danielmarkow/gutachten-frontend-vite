@@ -17,11 +17,14 @@ export default function GutachtenLanding() {
     queryKey: ["gutachten"], // query key is necessary for this to refetch
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const res = await axios.get("http://localhost:8000/api/gutachten", {
-        headers: {
-          authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const res = await axios.get(
+        import.meta.env.VITE_API_DOMAIN + "gutachten",
+        {
+          headers: {
+            authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       return res.data as GutachtenOutput[];
     },
     onError: () => {

@@ -25,12 +25,15 @@ export default function DeleteThemeModal({
   const deleteThemeMut = useMutation({
     mutationFn: async (theme_id: string) => {
       const accessToken = await getAccessTokenSilently();
-      await axios.delete("http://localhost:8000/api/theme/" + theme_id, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${accessToken}`,
-        },
-      });
+      await axios.delete(
+        import.meta.env.VITE_API_DOMAIN + "theme/" + theme_id,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
     },
     onError: () => {
       console.error(

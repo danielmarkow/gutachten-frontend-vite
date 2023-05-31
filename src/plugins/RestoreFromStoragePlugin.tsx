@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import { debounce } from "../utils/debounce";
-import { GutachtenOutput } from "../types/gutachten";
 
 export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
   const [editor] = useLexicalComposerContext();
@@ -19,7 +18,7 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
   const saveContentMut = useMutation({
     mutationFn: async ({ ga }: { ga: EditorState }) => {
       const accessToken = await getAccessTokenSilently();
-      await fetch("http://localhost:8000/api/gutachten/" + namespace, {
+      await fetch(import.meta.env.VITE_API_DOMAIN + "gutachten/" + namespace, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -33,11 +32,11 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
     },
   });
 
-  const editorContentQuery = useQuery({
+  useQuery({
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
       const res = await axios.get(
-        "http://localhost:8000/api/gutachten/" + namespace,
+        import.meta.env.VITE_API_DOMAIN + "gutachten/" + namespace,
         {
           headers: {
             "Content-Type": "application/json",

@@ -94,14 +94,17 @@ export default function EditSnippetModal({
       payload: ThemeInput;
     }) => {
       const accessToken = await getAccessTokenSilently();
-      const res = await fetch("http://localhost:8000/api/theme/" + themeId, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        import.meta.env.VITE_API_DOMAIN + "theme/" + themeId,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
       return await res.json();
     },
     onError: () => {

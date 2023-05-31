@@ -1,6 +1,5 @@
 import { Fragment } from "react";
 
-import axios from "axios";
 import { Dialog, Transition } from "@headlessui/react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
@@ -28,13 +27,13 @@ export default function CreateGutachtenModal({
   open: boolean;
   setOpen: (arg: boolean) => void;
 }) {
-  const [location, setLocation] = useLocation();
+  const setLocation = useLocation()[1];
   const { getAccessTokenSilently, user } = useAuth0();
 
   const createGutachtenMut = useMutation({
     mutationFn: async (payload: FormValues) => {
       const accessToken = await getAccessTokenSilently();
-      const resp = await fetch("http://localhost:8000/api/gutachten", {
+      const resp = await fetch(import.meta.env.VITE_API_DOMAIN + "gutachten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

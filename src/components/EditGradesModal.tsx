@@ -62,7 +62,7 @@ export default function EditGradesModal({
   const updateGradesMut = useMutation({
     mutationFn: async (payload: GradeOutput[]) => {
       const accessToken = await getAccessTokenSilently();
-      await fetch("http://localhost:8000/api/grade", {
+      await fetch(import.meta.env.VITE_API_DOMAIN + "grade", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

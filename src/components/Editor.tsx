@@ -53,7 +53,8 @@ const Placeholder = () => {
 };
 
 export function Editor({ ga_id }: { ga_id: string }) {
-  const [location, setLocation] = useLocation();
+  // const [location, setLocation] = useLocation();
+  const setLocation = useLocation()[1];
 
   return (
     <>

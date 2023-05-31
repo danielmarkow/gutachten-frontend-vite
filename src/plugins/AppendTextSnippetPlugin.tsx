@@ -8,7 +8,7 @@ import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 
-import type { ThemeInput, ThemeOutput } from "../types/textbausteine";
+import type { ThemeOutput } from "../types/textbausteine";
 
 import { Menu, Transition } from "@headlessui/react";
 import {
@@ -63,7 +63,7 @@ export function AppendTextSnippedPlugin() {
     queryKey: ["theme"],
     queryFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const res = await axios.get("http://localhost:8000/api/theme", {
+      const res = await axios.get(import.meta.env.VITE_API_DOMAIN + "theme", {
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${accessToken}`,
@@ -84,7 +84,7 @@ export function AppendTextSnippedPlugin() {
           user_id: user?.sub,
         };
       });
-      await fetch("http://localhost:8000/api/grade", {
+      await fetch(import.meta.env.VITE_API_DOMAIN + "grade", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +101,7 @@ export function AppendTextSnippedPlugin() {
   const createThemeMut = useMutation({
     mutationFn: async () => {
       const accessToken = await getAccessTokenSilently();
-      const res = await fetch("http://localhost:8000/api/theme", {
+      const res = await fetch(import.meta.env.VITE_API_DOMAIN + "theme", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
