@@ -1,5 +1,7 @@
 import { Fragment, useEffect } from "react";
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { z } from "zod";
@@ -9,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import type { GradeOutput, ThemeOutput } from "../types/textbausteine";
 import { useMutation, useQueryClient } from "react-query";
-import axios from "axios";
 
 import LoadingButton from "./common/LoadingButton";
 
@@ -33,6 +34,7 @@ export default function EditGradesModal({
   setOpen: (arg: boolean) => void;
   theme: ThemeOutput;
 }) {
+  const { getAccessTokenSilently } = useAuth0();
   const {
     register,
     handleSubmit,
@@ -59,7 +61,15 @@ export default function EditGradesModal({
 
   const updateGradesMut = useMutation({
     mutationFn: async (payload: GradeOutput[]) => {
-      await axios.put("http://localhost:8000/api/grade", payload);
+      const accessToken = await getAccessTokenSilently();
+      await fetch("http://localhost:8000/api/grade", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
     },
     onError: () => {
       console.error("Fehler beim Speichern der Noten");

@@ -5,6 +5,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 import { useMutation } from "react-query";
+import { useAuth0 } from "@auth0/auth0-react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,36 +29,49 @@ export default function CreateGutachtenModal({
   setOpen: (arg: boolean) => void;
 }) {
   const [location, setLocation] = useLocation();
+  const { getAccessTokenSilently, user } = useAuth0();
 
   const createGutachtenMut = useMutation({
-    mutationFn: async (data: FormValues) => {
-      const resp = await axios.post("http://localhost:8000/api/gutachten", {
-        ga: {
-          root: {
-            children: [
-              {
-                children: [],
-                direction: null,
-                format: "",
-                indent: 0,
-                type: "paragraph",
-                version: 1,
-              },
-            ],
-            direction: null,
-            format: "",
-            indent: 0,
-            type: "root",
-            version: 1,
-          },
+    mutationFn: async (payload: FormValues) => {
+      const accessToken = await getAccessTokenSilently();
+      const resp = await fetch("http://localhost:8000/api/gutachten", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
         },
-        ...data,
+        body: JSON.stringify({
+          ga: {
+            root: {
+              children: [
+                {
+                  children: [],
+                  direction: null,
+                  format: "",
+                  indent: 0,
+                  type: "paragraph",
+                  version: 1,
+                },
+              ],
+              direction: null,
+              format: "",
+              indent: 0,
+              type: "root",
+              version: 1,
+            },
+          },
+          ...payload,
+          user_id: user?.sub,
+        }),
       });
-      return resp.data as GutachtenOutput;
+      return (await resp.json()) as GutachtenOutput;
     },
     onSuccess: (data) => {
       setOpen(false);
       setLocation(`/gutachten/${data.id}`);
+    },
+    onError: () => {
+      console.error("Fehler beim Erstellen des neuen Gutachtens");
     },
   });
 

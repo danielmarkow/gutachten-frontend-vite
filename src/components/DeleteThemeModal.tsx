@@ -4,6 +4,8 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import type { ThemeOutput } from "../types/textbausteine";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+
 import LoadingButton from "./common/LoadingButton";
 
 export default function DeleteThemeModal({
@@ -15,13 +17,20 @@ export default function DeleteThemeModal({
   setOpen: (param: boolean) => void;
   theme: ThemeOutput;
 }) {
+  const { getAccessTokenSilently } = useAuth0();
   const cancelButtonRef = useRef(null);
 
   const client = useQueryClient();
 
   const deleteThemeMut = useMutation({
     mutationFn: async (theme_id: string) => {
-      await axios.delete("http://localhost:8000/api/theme/" + theme_id);
+      const accessToken = await getAccessTokenSilently();
+      await axios.delete("http://localhost:8000/api/theme/" + theme_id, {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
     },
     onError: () => {
       console.error(

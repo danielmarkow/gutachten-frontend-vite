@@ -18,24 +18,30 @@ import {
   TrashIcon,
 } from "@heroicons/react/20/solid";
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 import Loading from "../components/common/Loading";
 import EditSnippetModal from "../components/EditSnippetModal";
 import DeleteThemeModal from "../components/DeleteThemeModal";
 import EditGradesModal from "../components/EditGradesModal";
 
 export function AppendTextSnippedPlugin() {
+  const { getAccessTokenSilently, user } = useAuth0();
+
   const [editor] = useLexicalComposerContext();
   const APPEND_TEXT_SNIPPET_COMMAND: LexicalCommand<string> = createCommand();
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openGradesModal, setOpenGradesModal] = useState(false);
+
   // TODO work with undefined!
   const [themeToEdit, setThemeToEdit] = useState<ThemeOutput>({
     id: "",
     theme: "",
     differentiation: "",
-    grades: [{ id: "", grade: 0, snippet: "", theme_id: "" }],
+    grades: [{ id: "", grade: 0, snippet: "", theme_id: "", user_id: "" }],
+    user_id: "",
   });
 
   editor.registerCommand(
@@ -56,21 +62,36 @@ export function AppendTextSnippedPlugin() {
   const themeQuery = useQuery({
     queryKey: ["theme"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:8000/api/theme");
+      const accessToken = await getAccessTokenSilently();
+      const res = await axios.get("http://localhost:8000/api/theme", {
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
       return res.data as ThemeOutput[];
     },
   });
 
   const createGradeMut = useMutation({
     mutationFn: async (themeId: string) => {
+      const accessToken = await getAccessTokenSilently();
       const payload = [1, 2, 3, 4, 5, 6].map((g) => {
         return {
           grade: g,
           snippet: "",
           theme_id: themeId,
+          user_id: user?.sub,
         };
       });
-      await axios.post("http://localhost:8000/api/grade", payload);
+      await fetch("http://localhost:8000/api/grade", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
     },
     onSuccess: () => {
       setOpenEditModal(true);
@@ -79,15 +100,24 @@ export function AppendTextSnippedPlugin() {
 
   const createThemeMut = useMutation({
     mutationFn: async () => {
-      const res = await axios.post("http://localhost:8000/api/theme/", {
-        theme: "",
-        differentiation: "",
-        color: "#94a3b8",
+      const accessToken = await getAccessTokenSilently();
+      const res = await fetch("http://localhost:8000/api/theme", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          theme: "",
+          differentiation: "",
+          color: "#94a3b8",
+          user_id: user?.sub,
+        }),
       });
-      return res.data as ThemeOutput;
+      return (await res.json()) as ThemeOutput;
     },
     onError: () => {
-      console.error("Error beim Erzeugen des Textbausteins");
+      console.error("Fehler beim Erzeugen des Textbausteins");
     },
     onSuccess: (data) => {
       setThemeToEdit(data);
@@ -125,11 +155,8 @@ export function AppendTextSnippedPlugin() {
       >
         {themeQuery.isSuccess &&
           themeQuery.data.map((theme) => (
-            <>
-              <li
-                key={theme.id}
-                className="col-span-1 flex rounded-md shadow-sm"
-              >
+            <div key={theme.id}>
+              <li className="col-span-1 flex rounded-md shadow-sm">
                 <div
                   className="flex w-3 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white"
                   style={{
@@ -231,7 +258,7 @@ export function AppendTextSnippedPlugin() {
                   </Menu>
                 </div>
               </li>
-            </>
+            </div>
           ))}
         <li>
           <div className="flex justify-center h-full">

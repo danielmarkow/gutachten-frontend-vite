@@ -6,16 +6,26 @@ import axios from "axios";
 import { useMutation, useQuery } from "react-query";
 import { useState } from "react";
 
+import { useAuth0 } from "@auth0/auth0-react";
+
 import { debounce } from "../utils/debounce";
+import { GutachtenOutput } from "../types/gutachten";
 
 export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
   const [editor] = useLexicalComposerContext();
   const [isFirstRender, setIsFirstRender] = useState(true);
+  const { getAccessTokenSilently, user } = useAuth0();
 
   const saveContentMut = useMutation({
     mutationFn: async ({ ga }: { ga: EditorState }) => {
-      await axios.put("http://localhost:8000/api/gutachten/" + namespace, {
-        ga,
+      const accessToken = await getAccessTokenSilently();
+      await fetch("http://localhost:8000/api/gutachten/" + namespace, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ user_id: user?.sub, ga }),
       });
     },
     onError: () => {
@@ -25,8 +35,15 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
 
   const editorContentQuery = useQuery({
     queryFn: async () => {
+      const accessToken = await getAccessTokenSilently();
       const res = await axios.get(
-        "http://localhost:8000/api/gutachten/" + namespace
+        "http://localhost:8000/api/gutachten/" + namespace,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
       return res.data;
     },
@@ -37,10 +54,8 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
     onSuccess: (data) => {
       if (isFirstRender) {
         setIsFirstRender(false);
-        // if (Object.keys(data).length > 0) {
-        const initialEditorState = editor.parseEditorState(data.ga);
+        const initialEditorState = editor.parseEditorState(data[0].ga);
         editor.setEditorState(initialEditorState);
-        // }
       }
     },
   });

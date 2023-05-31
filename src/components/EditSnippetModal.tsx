@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 
-import axios from "axios";
 import { Dialog, Transition, Listbox } from "@headlessui/react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useForm, Controller } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import {
@@ -57,6 +57,7 @@ export default function EditSnippetModal({
   setOpen: (arg: boolean) => void;
   theme: ThemeOutput;
 }) {
+  const { getAccessTokenSilently, user } = useAuth0();
   const [selectedColor, setSelectedColor] = useState<Color>();
 
   const {
@@ -92,11 +93,16 @@ export default function EditSnippetModal({
       themeId: string;
       payload: ThemeInput;
     }) => {
-      const res = await axios.put(
-        "http://localhost:8000/api/theme/" + themeId,
-        payload
-      );
-      return res.data;
+      const accessToken = await getAccessTokenSilently();
+      const res = await fetch("http://localhost:8000/api/theme/" + themeId, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      return await res.json();
     },
     onError: () => {
       console.error("Beim Speichern ist ein Fehler aufgetreten");
@@ -118,6 +124,7 @@ export default function EditSnippetModal({
         theme: data.oberpunkt,
         differentiation: data.unterpunkt,
         color: data.farbe.value,
+        user_id: user?.sub as string,
       },
     });
   };

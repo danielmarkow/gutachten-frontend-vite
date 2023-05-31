@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import axios from "axios";
 import { useQuery } from "react-query";
-import { useLocation, Link } from "wouter";
+import { Link } from "wouter";
 import type { GutachtenOutput } from "../types/gutachten";
 import CreateGutachtenModal from "./CreateGutachtenModal";
 
@@ -11,7 +11,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 export default function GutachtenLanding() {
   const { getAccessTokenSilently } = useAuth0();
 
-  const [location, setLocation] = useLocation();
   const [openCreateGA, setOpenCreateGA] = useState(false);
 
   const getGutachtenQuery = useQuery({
