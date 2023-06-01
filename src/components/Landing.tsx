@@ -16,6 +16,7 @@ export default function Landing() {
           >
             Log Out
           </button>
+          <br />
           <Link href="/gutachten">
             <a>Meine Gutachten</a>
           </Link>

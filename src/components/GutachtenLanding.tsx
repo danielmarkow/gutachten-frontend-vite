@@ -2,14 +2,17 @@ import { useState } from "react";
 
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link } from "wouter";
+// import { Link } from "wouter";
 import type { GutachtenOutput } from "../types/gutachten";
 import CreateGutachtenModal from "./CreateGutachtenModal";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
+import { useLocation } from "wouter";
 
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function GutachtenLanding() {
   const { getAccessTokenSilently } = useAuth0();
+  const setLocation = useLocation()[1];
 
   const [openCreateGA, setOpenCreateGA] = useState(false);
 
@@ -40,22 +43,23 @@ export default function GutachtenLanding() {
     <>
       <div className="h-2" />
       <CreateGutachtenModal open={openCreateGA} setOpen={setOpenCreateGA} />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid gap-2  sm:grid-cols-2">
         {getGutachtenQuery.isSuccess &&
           getGutachtenQuery.data.map((gutachten) => (
-            <div
-              key={gutachten.id}
-              className="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400"
-            >
-              <div className="min-w-0 flex-1">
-                <Link href={`/gutachten/${gutachten.id}`}>
-                  <a className="focus:outline-none">
-                    <span className="absolute inset-0" aria-hidden="true" />
-                    <p className="text-sm font-medium text-gray-900">
-                      {gutachten.description}
-                    </p>
-                  </a>
-                </Link>
+            <div key={gutachten.id} className="flex justify-center h-full">
+              <div className="flex p-1 flex-1 bg-white rounded-md border border-gray-200 w-52">
+                <div className="flex gap-2 align-middle">
+                  <PencilSquareIcon
+                    onClick={() => setLocation(`/gutachten/${gutachten.id}`)}
+                    className="h-5 w-5 cursor-pointer"
+                  />
+                  <TrashIcon className="h-5 w-5 cursor-pointer" />
+                  <span>
+                    {gutachten.description !== ""
+                      ? gutachten.description
+                      : "Keine Beschreibung"}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
