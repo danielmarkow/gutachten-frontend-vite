@@ -1,8 +1,7 @@
 import { useState } from "react";
 
 import axios from "axios";
-import { useQuery } from "react-query";
-// import { Link } from "wouter";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import type { GutachtenOutput } from "../types/gutachten";
 import CreateGutachtenModal from "./CreateGutachtenModal";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
@@ -15,6 +14,8 @@ export default function GutachtenLanding() {
   const setLocation = useLocation()[1];
 
   const [openCreateGA, setOpenCreateGA] = useState(false);
+
+  const client = useQueryClient();
 
   const getGutachtenQuery = useQuery({
     queryKey: ["gutachten"], // query key is necessary for this to refetch
@@ -32,6 +33,28 @@ export default function GutachtenLanding() {
     },
     onError: () => {
       console.error("error retrieving gutachten data");
+    },
+  });
+
+  const deleteGutachtenMut = useMutation({
+    mutationFn: async (gutachtenId: string) => {
+      const accessToken = await getAccessTokenSilently();
+      await fetch(
+        import.meta.env.VITE_API_DOMAIN + "gutachten/" + gutachtenId,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    },
+    onError: () => {
+      console.error("Fehler beim Löschen des Gutachtens");
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["gutachten"] });
     },
   });
 
@@ -53,7 +76,10 @@ export default function GutachtenLanding() {
                     onClick={() => setLocation(`/gutachten/${gutachten.id}`)}
                     className="h-5 w-5 cursor-pointer"
                   />
-                  <TrashIcon className="h-5 w-5 cursor-pointer" />
+                  <TrashIcon
+                    onClick={() => deleteGutachtenMut.mutate(gutachten.id)}
+                    className="h-5 w-5 cursor-pointer"
+                  />
                   <span>
                     {gutachten.description !== ""
                       ? gutachten.description
