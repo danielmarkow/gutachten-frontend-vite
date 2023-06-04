@@ -156,7 +156,7 @@ export function AppendTextSnippedPlugin() {
         {themeQuery.isSuccess &&
           themeQuery.data.map((theme) => (
             <div key={theme.id}>
-              <li className="col-span-1 flex rounded-md shadow-sm">
+              <li className="col-span-1 flex rounded-md shadow-sm h-full">
                 <div
                   className="flex w-3 flex-shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white"
                   style={{
@@ -269,6 +269,7 @@ export function AppendTextSnippedPlugin() {
                   createThemeMut.mutate();
                 }}
               />
+              <span className="text-gray-600">Neuer Textbaustein</span>
             </div>
           </div>
         </li>
