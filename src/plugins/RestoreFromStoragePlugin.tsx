@@ -59,7 +59,7 @@ export function RestoreFromStoragePlugin({ namespace }: { namespace: string }) {
     },
   });
 
-  const debouncedSaveContent = debounce(saveContentMut.mutate, 1000);
+  const debouncedSaveContent = debounce(saveContentMut.mutate, 4000);
 
   const onChange = (editorState: EditorState) => {
     debouncedSaveContent({ ga: editorState });
